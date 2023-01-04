@@ -22,6 +22,14 @@ func TestSimple(t *testing.T) {
 	}
 }
 
+func TestGetReactor(t *testing.T) {
+	r := New()
+	var r2 Reactor
+	if err := r.Get(&r2); assert.NoError(t, err) {
+		assert.Same(t, r, r2)
+	}
+}
+
 func TestProvider(t *testing.T) {
 	r := New()
 	err := r.Put(

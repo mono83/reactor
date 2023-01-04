@@ -49,6 +49,11 @@ func (r *reactor) Get(target interface{}) error {
 		return ErrNilTarget
 	}
 
+	if rr, ok := target.(*Reactor); ok {
+		*rr = r
+		return nil
+	}
+
 	targetType := reflect.TypeOf(target)
 	if targetType.Kind() != reflect.Ptr {
 		return ErrNotPointerReceiver
