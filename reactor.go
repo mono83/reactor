@@ -106,66 +106,33 @@ func (r *reactor) Put(funcs ...interface{}) error {
 		}
 
 		if numOut == 1 {
-			if registeringType.Kind() == reflect.Ptr {
-				r.providers[registeringType.Elem()] = func() (interface{}, error) {
-					var in []reflect.Value
-					for _, reader := range inReaders {
-						v, err := reader()
-						if err != nil {
-							return nil, err
-						}
-						in = append(in, v)
+			r.providers[registeringType] = func() (interface{}, error) {
+				var in []reflect.Value
+				for _, reader := range inReaders {
+					v, err := reader()
+					if err != nil {
+						return nil, err
 					}
-					values := funcValue.Call(in)
-					return values[0].Elem().Interface(), nil
+					in = append(in, v)
 				}
-			} else {
-				r.providers[registeringType] = func() (interface{}, error) {
-					var in []reflect.Value
-					for _, reader := range inReaders {
-						v, err := reader()
-						if err != nil {
-							return nil, err
-						}
-						in = append(in, v)
-					}
-					values := funcValue.Call(in)
-					return values[0].Interface(), nil
-				}
+				values := funcValue.Call(in)
+				return values[0].Interface(), nil
 			}
 		} else {
-			if registeringType.Kind() == reflect.Ptr {
-				r.providers[registeringType.Elem()] = func() (interface{}, error) {
-					var in []reflect.Value
-					for _, reader := range inReaders {
-						v, err := reader()
-						if err != nil {
-							return nil, err
-						}
-						in = append(in, v)
+			r.providers[registeringType] = func() (interface{}, error) {
+				var in []reflect.Value
+				for _, reader := range inReaders {
+					v, err := reader()
+					if err != nil {
+						return nil, err
 					}
-					values := funcValue.Call(in)
-					if values[1].IsNil() {
-						return values[0].Elem().Interface(), nil
-					}
-					return nil, values[1].Interface().(error)
+					in = append(in, v)
 				}
-			} else {
-				r.providers[registeringType] = func() (interface{}, error) {
-					var in []reflect.Value
-					for _, reader := range inReaders {
-						v, err := reader()
-						if err != nil {
-							return nil, err
-						}
-						in = append(in, v)
-					}
-					values := funcValue.Call(in)
-					if values[1].IsNil() {
-						return values[0].Interface(), nil
-					}
-					return nil, values[1].Interface().(error)
+				values := funcValue.Call(in)
+				if values[1].IsNil() {
+					return values[0].Interface(), nil
 				}
+				return nil, values[1].Interface().(error)
 			}
 		}
 	}

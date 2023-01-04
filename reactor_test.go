@@ -2,13 +2,14 @@ package inflate
 
 import (
 	"github.com/stretchr/testify/assert"
+	"net/url"
 	"testing"
 	"time"
 )
 
 func TestSimple(t *testing.T) {
 	r := New()
-	r.Put("Fooo", 132)
+	_ = r.Put("Fooo", 132)
 
 	var s string
 	if err := r.Get(&s); assert.NoError(t, err) {
@@ -48,17 +49,30 @@ func TestProvider(t *testing.T) {
 		if err := r.Get(&d); assert.NoError(t, err) {
 			assert.Equal(t, time.Minute, d)
 		}
-		var f32 float32
+		var f32 *float32
 		if err := r.Get(&f32); assert.NoError(t, err) {
-			assert.Equal(t, float32(10.), f32)
+			assert.Equal(t, float32(10.), *f32)
 		}
-		var f64 float64
+		var f64 *float64
 		if err := r.Get(&f64); assert.NoError(t, err) {
-			assert.Equal(t, 33.1, f64)
+			assert.Equal(t, 33.1, *f64)
 		}
 		var s string
 		if err := r.Get(&s); assert.NoError(t, err) {
 			assert.Equal(t, "1973-11-29 21:33:09 +0000 UTC", s)
+		}
+	}
+}
+
+func TestProviderRef(t *testing.T) {
+	r, err := NewWith(
+		"https://google.com",
+		url.Parse,
+	)
+	if assert.NoError(t, err) {
+		var u *url.URL
+		if err := r.Get(&u); assert.NoError(t, err) {
+			assert.Equal(t, "google.com", u.Host)
 		}
 	}
 }
