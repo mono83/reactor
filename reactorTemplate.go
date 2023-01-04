@@ -7,10 +7,6 @@ type Template func() (Reactor, error)
 // values or value providers.
 func NewTemplate(providers ...interface{}) Template {
 	return func() (Reactor, error) {
-		reactor := New()
-		if err := reactor.Put(providers...); err != nil {
-			return nil, err
-		}
-		return reactor, nil
+		return NewWith(providers...)
 	}
 }

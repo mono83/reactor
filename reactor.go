@@ -21,8 +21,18 @@ type Reactor interface {
 func New() Reactor {
 	return &reactor{
 		providers: make(map[reflect.Type]func() (interface{}, error)),
-		values: make(map[reflect.Type]interface{}),
+		values:    make(map[reflect.Type]interface{}),
 	}
+}
+
+// NewWith constructs new reactor with given value/value providers
+func NewWith(f ...interface{}) (Reactor, error) {
+	reactor := New()
+	if err := reactor.Put(f...); err != nil {
+		return nil, err
+	}
+
+	return reactor, nil
 }
 
 // reactor is an object configured with value providers
